@@ -1,0 +1,4 @@
+rootProject.name = 'images-warehouse'
+
+include 'back-app'
+include 'lambda-handlers'
