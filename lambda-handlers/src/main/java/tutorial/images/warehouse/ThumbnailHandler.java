@@ -41,7 +41,7 @@ public class ThumbnailHandler {
 
                         context.getLogger().log("Full image: " + fullImage);
 
-                        if (fullImage != null ) {
+                        if (fullImage != null) {
                             final BufferedImage thumbnailImage = createThumbnail(fullImage);
                             final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
                             final boolean written = ImageIO.write(thumbnailImage, "jpeg", out);
@@ -116,7 +116,8 @@ public class ThumbnailHandler {
                 .credentialsProvider(
                         StaticCredentialsProvider.create(
                                 AwsBasicCredentials.create(
-                                        null, null
+                                        System.getenv("AWS_ACCESS_KEY"),
+                                        System.getenv("AWS_SECRET_ACCESS_KEY")
                                 )
                         )
                 )
