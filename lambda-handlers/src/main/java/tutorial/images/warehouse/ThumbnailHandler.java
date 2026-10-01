@@ -3,8 +3,6 @@ package tutorial.images.warehouse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
@@ -113,14 +111,6 @@ public class ThumbnailHandler {
                 )
                 .region(Region.EU_NORTH_1)
                 .forcePathStyle(true)
-                .credentialsProvider(
-                        StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create(
-                                        System.getenv("AWS_ACCESS_KEY"),
-                                        System.getenv("AWS_SECRET_ACCESS_KEY")
-                                )
-                        )
-                )
                 .build();
     }
 }
