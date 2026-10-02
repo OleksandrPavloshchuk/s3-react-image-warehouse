@@ -26,9 +26,20 @@ public class StorageController {
                 .thenApply( ol -> ol.orElseGet(List::of));
     }
 
-    @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<byte[]>> imageContent(@PathVariable String id) {
-        return storageService.imageContent(id)
+    @GetMapping("/{id}/thumbnail")
+    public CompletableFuture<ResponseEntity<byte[]>> imageContentThumbnail(@PathVariable String id) {
+        return storageService.imageContentThumbnail(id)
+                .thenApply(oc -> oc.map(
+                                content -> ResponseEntity
+                                        .ok()
+                                        .contentType(MediaType.parseMediaType(content.type()))
+                                        .body(content.data()))
+                        .orElseGet(() -> ResponseEntity.notFound().build()));
+    }
+
+    @GetMapping("/{id}/original")
+    public CompletableFuture<ResponseEntity<byte[]>> imageContentOriginal(@PathVariable String id) {
+        return storageService.imageContentOriginal(id)
                 .thenApply(oc -> oc.map(
                                 content -> ResponseEntity
                                         .ok()

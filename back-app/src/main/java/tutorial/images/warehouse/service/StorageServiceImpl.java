@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,25 +30,27 @@ public class StorageServiceImpl implements StorageService {
         return getList()
                 .thenApply(response -> Optional.of(response.contents().stream()
                         .map(S3Object::key)
-                        .filter(key -> key.startsWith("thumbnail-"))
+                        .filter(key -> key.startsWith("full-"))
+                        .map(key -> key.substring(5))
                         .map(ImageInfo::new)
                         .toList())
                 )
-                .exceptionally(ex -> {
-                    log.error("list error", ex);
-                    return Optional.empty();
-                });
+                .exceptionally(ex -> handleException("list error", ex));
     }
 
     @Override
-    public CompletableFuture<Optional<ImageContent>> imageContent(String id) {
-        return downloadContent(id)
-                .thenApply(response ->
-                        Optional.of(new ImageContent(response.response().contentType(), response.asByteArray())))
-                .exceptionally(ex -> {
-                    log.error("get content error", ex);
-                    return Optional.empty();
-                });
+    public CompletableFuture<Optional<ImageContent>> imageContentThumbnail(String id) {
+        return objectExists("thumbnail-" + id)
+                .thenCompose(exists -> downloadContent(exists ? "thumbnail-" + id : "full-" + id))
+                .thenApply(response -> Optional.of(createImageContent(response)))
+                .exceptionally(ex -> handleException("get content error", ex));
+    }
+
+    @Override
+    public CompletableFuture<Optional<ImageContent>> imageContentOriginal(String id) {
+        return downloadContent("full-" + id)
+                .thenApply(response -> Optional.of(createImageContent(response)))
+                .exceptionally(ex -> handleException("get content error", ex));
     }
 
     @Override
@@ -55,10 +58,16 @@ public class StorageServiceImpl implements StorageService {
         final String key = UUID.randomUUID().toString();
         return uploadContent(key, name, contentType, content)
                 .thenApply(resp -> Optional.of(key))
-                .exceptionally(ex -> {
-                    log.error("create error", ex);
-                    return Optional.empty();
-                });
+                .exceptionally(ex -> handleException("create error", ex));
+    }
+
+    private <T> Optional<T> handleException(String msg, Throwable ex) {
+        log.error(msg, ex);
+        return Optional.empty();
+    }
+
+    private static ImageContent createImageContent(ResponseBytes<GetObjectResponse> response) {
+        return new ImageContent(response.response().contentType(), response.asByteArray());
     }
 
     private CompletableFuture<ListObjectsResponse> getList() {
@@ -95,5 +104,22 @@ public class StorageServiceImpl implements StorageService {
         return s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes());
     }
 
+    public CompletableFuture<Boolean> objectExists(String key) {
+        final HeadObjectRequest request = HeadObjectRequest.builder()
+                .bucket(awsProperties.s3bucket())
+                .key(key)
+                .build();
+        return s3AsyncClient.headObject(request)
+                .handle((response, ex) -> {
+                    if (ex == null) {
+                        return true;
+                    }
+                    final Throwable cause = ex instanceof CompletionException ? ex.getCause() : ex;
+                    if (cause instanceof S3Exception e && e.statusCode() == 404) {
+                        return false;
+                    }
+                    throw new CompletionException(cause);
+                });
+    }
 
 }

@@ -11,6 +11,6 @@ type Props = {
 // TODO use /thumbnail-200px here. /full is created for full image version, which is should be created.
 export const ImageView: React.FC<Props> = ({imageInfo}) => {
     return <div className={"imageView"}>
-        <Image src={`${backendUrl}/${imageInfo.id}`} />
+        <Image src={`${backendUrl}/${imageInfo.id}/thumbnail`} />
     </div>
 }
