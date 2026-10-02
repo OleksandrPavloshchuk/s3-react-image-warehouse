@@ -39,6 +39,17 @@ public class StorageController {
         return imageContent(id, storageService::imageContentOriginal);
     }
 
+    @PostMapping
+    public CompletableFuture<ResponseEntity<?>> create(@RequestParam("file") MultipartFile file) throws IOException {
+        final String contentType = file.getContentType();
+        final String name = file.getName();
+        final byte[] bytes = file.getBytes();
+        return storageService.create(name, contentType, bytes)
+                .thenApply(oc -> oc
+                        .map(StorageController::createCreatedResponse)
+                        .orElseGet(() -> ResponseEntity.badRequest().build()));
+    }
+
     private CompletableFuture<ResponseEntity<byte[]>> imageContent(
             String id,
             Function<String, CompletableFuture<Optional<ImageContent>>> reader
@@ -50,17 +61,6 @@ public class StorageController {
                                         .contentType(MediaType.parseMediaType(content.type()))
                                         .body(content.data()))
                         .orElseGet(() -> ResponseEntity.notFound().build()));
-    }
-
-    @PostMapping
-    public CompletableFuture<ResponseEntity<?>> create(@RequestParam("file") MultipartFile file) throws IOException {
-        final String contentType = file.getContentType();
-        final String name = file.getName();
-        final byte[] bytes = file.getBytes();
-        return storageService.create(name, contentType, bytes)
-                .thenApply(oc -> oc
-                        .map(StorageController::createCreatedResponse)
-                        .orElseGet(() -> ResponseEntity.badRequest().build()));
     }
 
     private static ResponseEntity<?> createCreatedResponse(String id) {
