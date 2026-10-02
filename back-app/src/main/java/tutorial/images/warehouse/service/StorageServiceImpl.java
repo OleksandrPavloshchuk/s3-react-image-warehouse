@@ -104,7 +104,7 @@ public class StorageServiceImpl implements StorageService {
         return s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes());
     }
 
-    public CompletableFuture<Boolean> objectExists(String key) {
+    private CompletableFuture<Boolean> objectExists(String key) {
         final HeadObjectRequest request = HeadObjectRequest.builder()
                 .bucket(awsProperties.s3bucket())
                 .key(key)
