@@ -3,6 +3,7 @@ package tutorial.images.warehouse.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -109,6 +110,14 @@ public class StorageServiceImplUnitTest {
 
         verify(s3AsyncClient).headObject(any(HeadObjectRequest.class));
         verify(s3AsyncClient).getObject(any(GetObjectRequest.class), any(AsyncResponseTransformer.class));
+
+        final ArgumentCaptor<GetObjectRequest> captor =
+                ArgumentCaptor.forClass(GetObjectRequest.class);
+
+        verify(s3AsyncClient)
+                .getObject(captor.capture(), any(AsyncResponseTransformer.class));
+
+        Assertions.assertEquals("thumbnail-id-1", captor.getValue().key());
     }
 
 }
