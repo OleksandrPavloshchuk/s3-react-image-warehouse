@@ -1,13 +1,15 @@
 html, body {
     height: 100%;
-    overflow: hidden;
+    overflow-y: scroll;
 }
 
 body {
-    padding: 0.5em;
+    margin: 0;
 }
 
 .root {
+    height: 100%;
+    margin: 0.5em;
 }
 
 .list {
@@ -15,10 +17,10 @@ body {
     display: grid;
     gap: 10px;
     padding: 10px;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     background-color: aliceblue;
     overflow: auto;
-    height: 900px;
+    height: 100%;
 }
 
 .imageView {

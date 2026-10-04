@@ -49,61 +49,59 @@ export const Root: React.FC = () => {
                 <List data={data} state={listState}/>
             </Flex>
         </Stack>
-        {showDialog &&
-            <Modal
-                title="Add Image"
-                trapFocus={false}
-                zIndex={8000}
-                opened={showDialog}
-                onClose={() => setShowDialog(false)}
-                withinPortal={true}
-            >
-                <Stack>
-                    <Flex>
-                        <Button onClick={selectFile}>Choose image...</Button>
-                        <TextInput readOnly value={fileName}/>
-                        <ActionIcon
-                            component="span"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setFileName("")
-                                if (fileLoader.current) {
-                                    fileLoader.current.value = ""
-                                }
-                            }}
-                            variant="light"
-                            size="lg">
-                            <CloseIcon/>
-                        </ActionIcon>
-                        <input
-                            ref={fileLoader}
-                            type={"file"}
-                            accept={"image/*"}
-                            hidden
-                            onChange={(e)=> {
-                                const file = e.currentTarget.files?.[0]
-                                setFileName(file?.name ?? "")
-                                setAddImageState("ok")
-                            }}
-                        />
-                    </Flex>
-                    <Flex>
-                        {addImageState === "ok" &&
-                            <Button
-                                onClick={doAddImage}
-                                disabled={!fileName}
-                            >Add Image</Button>
-                        }
-                        {addImageState === "loading" &&
-                            <div>Adding new image...</div>
-                        }
-                        {addImageState === "error" &&
-                            <div>Can't add new image</div>
-                        }
-                    </Flex>
-                </Stack>
-            </Modal>
-        }
+        <Modal
+            title="Add Image"
+            trapFocus={false}
+            zIndex={8000}
+            opened={showDialog}
+            onClose={() => setShowDialog(false)}
+            withinPortal={true}
+        >
+            <Stack>
+                <Flex>
+                    <Button onClick={selectFile}>Choose image...</Button>
+                    <TextInput readOnly value={fileName}/>
+                    <ActionIcon
+                        component="span"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setFileName("")
+                            if (fileLoader.current) {
+                                fileLoader.current.value = ""
+                            }
+                        }}
+                        variant="light"
+                        size="lg">
+                        <CloseIcon/>
+                    </ActionIcon>
+                    <input
+                        ref={fileLoader}
+                        type={"file"}
+                        accept={"image/*"}
+                        hidden
+                        onChange={(e) => {
+                            const file = e.currentTarget.files?.[0]
+                            setFileName(file?.name ?? "")
+                            setAddImageState("ok")
+                        }}
+                    />
+                </Flex>
+                <Flex>
+                    {addImageState === "ok" &&
+                        <Button
+                            onClick={doAddImage}
+                            disabled={!fileName}
+                        >Add Image</Button>
+                    }
+                    {addImageState === "loading" &&
+                        <div>Adding new image...</div>
+                    }
+                    {addImageState === "error" &&
+                        <div>Can't add new image</div>
+                    }
+                </Flex>
+            </Stack>
+        </Modal>
     </div>;
 }

@@ -24,7 +24,7 @@ public class ThumbnailHandler {
     private final S3Client s3 = createS3Client();
 
     public void handleRequest(S3Event event, Context context) throws IOException {
-        final ThumbnailImageCreator thumbnailImageCreator = new ThumbnailImageCreator(300);
+        final ThumbnailImageCreator thumbnailImageCreator = new ThumbnailImageCreator(200);
         for (S3EventNotification.S3EventNotificationRecord record : event.getRecords()) {
             final String bucket = record.getS3().getBucket().getName();
             final String key = record.getS3().getObject().getKey();
